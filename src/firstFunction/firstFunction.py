@@ -4,6 +4,7 @@ Created on Oct 20, 2018
 @author: root
 '''
 import socket
+import os
 import sys
 
 def retBanner(ip,port):
@@ -16,11 +17,7 @@ def retBanner(ip,port):
     except:
         return
 
-def checkVuls(banner):
-    filename='vuln_banners.txt'
-    if len(sys.argv) == 2:
-        filename=sys.argv[1]
-        print('[+] Reading Vulnerabilities From: '+filename)    
+def checkVuls(banner, filename):
     f = open(filename,'r')
     for line in f.readlines():
         if line.strip('\n') in banner:
@@ -28,6 +25,17 @@ def checkVuls(banner):
     return
 
 def main():
+    if len(sys.argv) == 2:
+        filename=sys.argv[1]
+        if not (os.path.isfile(filename)):
+            print('[-] '+filename+' does not exist')
+            exit (0)
+        if not (os.access(filename, os.R_OK)):
+            print('[-] '+filename+' access denied')
+            exit(0)
+    else:
+        print('[-] Usage: '+str(sys.argv[0])+' <vuln filename>')
+        exit(0)
     portList = [21,22,25,80,110,443]
     for x in range(206,209):
         ip = '192.168.43.'+str(x)
@@ -35,7 +43,7 @@ def main():
             banner = retBanner(ip, port)
             if banner:
                 print('[+] '+str(ip)+': '+banner)
-                checkVuls(banner)
+                checkVuls(banner, str(filename))
 
 if __name__ == '__main__':
     main()
